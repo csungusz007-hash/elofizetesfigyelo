@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +21,17 @@ jobs:
 
       - name: Kicsomagolas
         run: unzip -o ElofizetesFigyelo.zip
+
+      - name: Alairokulcs
+        env:
+          KS: ${{ secrets.SIGNING_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | tr -d ' \r\n' | base64 -d > ElofizetesFigyelo/app/upload.jks
+            echo "Alairokulcs beallitva"
+          else
+            echo "::warning::Nincs SIGNING_KEYSTORE_B64 titok, ideiglenes kulccsal irom ala (a Gmail-engedely igy nem fog mukodni)."
+          fi
 
       - name: Debug APK
         working-directory: ElofizetesFigyelo
